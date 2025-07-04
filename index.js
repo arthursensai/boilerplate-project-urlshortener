@@ -32,11 +32,13 @@ app.post('/api/shorturl', (req, res) => {
     const urlObj = new URL(originalUrl);
 
     dns.lookup(urlObj.hostname, (err, address) => {
-      if (err) return res.json({ error: 'invalid url'});
+      if (err) return res.json({ error: 'invalid url' });
+
       const shortUrl = urls.length + 1;
-      urls.push({ originalUrl, shortUrl });
-      res.json({ originalUrl, shortUrl });
-    })
+      urls.push({ original_url: originalUrl, short_url: shortUrl });
+
+      res.json({ original_url: originalUrl, short_url: shortUrl });
+    });
   } catch (err) {
     return res.json({ error: 'invalid url' });
   }
@@ -44,12 +46,12 @@ app.post('/api/shorturl', (req, res) => {
 
 app.get('/api/shorturl/:short_url', (req, res) => {
   const shortUrl = req.params.short_url;
+  const found = urls.find(i => i.short_url == shortUrl);
 
-  const found = urls.find(i => i.shortUrl == shortUrl);
-
-  if(found) res.redirect(found.originalUrl);
+  if (found) res.redirect(found.original_url);
   else res.json({ error: 'No short URL found' });
 });
+
 
 app.listen(port, function() {
   console.log(`Listening on port ${port}`);
